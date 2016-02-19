@@ -13,11 +13,17 @@ except:
 
     
 
-root = pm.PyNode('iPi:Hip')
-destRoot = pm.PyNode('HIKCharacterNode1_Hips')
+#src = pm.PyNode('iPi:Hip')
+#src = pm.PyNode('iPi:RThigh')
+src = pm.PyNode('iPi:RShin')
+#src = pm.PyNode('iPi:RFoot')
 
-print "HEJ1"
-tf.transferOneJoint(root, destRoot)
+#destRoot = pm.PyNode('HIKCharacterNode1_Hips')
+#destRoot = pm.PyNode('HIKCharacterNode1_RightUpLeg')
+destRoot = pm.PyNode('HIKCharacterNode1_RightLeg')
+#destRoot = pm.PyNode('HIKCharacterNode1_RightFoot')
+
+tf.transferOneJoint(src, destRoot)
 #tf.transferAnimation(root,destRoot)
 
 
