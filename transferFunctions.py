@@ -5,17 +5,29 @@ import pymel.core.datatypes as dt
 # pymel.core.datatypes.inv <--- for inverse matrix. inv(m) returns inverse of m
 
 #print pm.datatypes.EulerRotation(hej) <---- from matrix to euler rotation
-def printChildren(parent,level):
+def printChildren(parent,level = 0):
+    if level == 0:
+        print parent 
+    childs = 0
+        
+    level +=1
     
     for c in parent.getChildren():
-        print c
-        getRotationFromJoint(c)
-        #print level* " " + c
-        #printChildren(c,level+1)
+        #print c
+        #getRotationFromJoint(c)
+      
+        print level* " " + c 
+        
+        childs = childs + printChildren(c,level+1)
+    
+    
+    return childs +1
 
 
 def getRootNode(node):
     #This function finds the Joint that is highest in the hierarcy and returns that
+    #This is used to check if we're transfering a root node. 
+    # The root node will have a slightly different transfer, with it's translation included.
     rootNode = node
     rootFound = False
     print type(rootNode)
@@ -25,7 +37,7 @@ def getRootNode(node):
             rootFound = True
         
         else:
-            if rootNode.getParent() == 'HIKCharacterNode1_Reference':
+            if rootNode.getParent() == 'HIKCharacterNode1_Reference': #ignore the refrence joint in the destination. The hip is the upper parent
                 rootFound = True
                 
             elif rootNode.getParent().nodeType() == 'joint': #check if the parent is a joint node
@@ -36,9 +48,19 @@ def getRootNode(node):
         
         
     return rootNode
+
+
 def transferRootJoint(src,dest):
+    
+    #This function is used to transfer the root joint
+    #We don't have to convert this into another space.
+    #we just copy the rotation and translation over
+    
+    
+    
+    
     firstFrame = pm.findKeyframe(src, which ='first')
-    lastFrame = 207 #pm.findKeyframe(src, which = 'last')
+    lastFrame = pm.findKeyframe(src, which = 'last')
     current = firstFrame
     pm.setCurrentTime(current)
     
@@ -61,20 +83,27 @@ def transferOneJoint(src,dest):
     
     #get the upper most parent node, If there is none it will return itself
     srcRootNode = getRootNode(src)
-    print "The source node is : " + src
-    print "The rootNODE of the source IS : " + srcRootNode 
-    hej = False
-    print "----------------------------------------"
-    destRootNode = getRootNode(dest) 
-    print "The destination node is : " + dest
-    print "The rootNODE of the destination IS : " + destRootNode     
+#_-------------------------------------------------------------    
+    #temp
     
+    #print "The source node is : " + src
+    #print "The rootNODE of the source IS : " + srcRootNode 
+    hej = False
+    #print "----------------------------------------"
+   #TEMP
+#_____________________________________________________________________   
+    destRootNode = getRootNode(dest) 
+    
+    #temp--------------------------------------------------------
+   # print "The destination node is : " + dest
+    #print "The rootNODE of the destination IS : " + destRootNode     
+    #temp----------------------------------------------------------
     if srcRootNode == src:
         #this checks if the root node is being processed
         #then we need to include the translation
         #we have another function only for the root node transformation
         transferRootJoint(src,dest)
-        print "THIS IS THE ROOTNODE. IDIOT!"
+        print "THIS IS THE ROOTNODE"
     
     
     
@@ -82,15 +111,15 @@ def transferOneJoint(src,dest):
         
         
         firstFrame = pm.findKeyframe(src, which ='first')
-        lastFrame = 207 #pm.findKeyframe(src, which = 'last')
+        lastFrame = pm.findKeyframe(src, which = 'last')
         current = firstFrame
         pm.setCurrentTime(current)
         frames = 0 
         
-        #get the rotation of the root  (IT's the bind pose)      Needed when changing basis 
+        #get the rotation of the root in the first frame (IT's the bind pose)      Needed when changing basis 
         srcRootRotation = srcRootNode.getRotation().asMatrix()   
     
-        #Do the same for the destination joint    (get bind pose of root) Needed when applying rotation to destination
+        #Do the same for the destination joint  (get bind pose of root) Needed when applying rotation to destination
         # we need rotation of all the parenting joints, but not the destination joint
        
         destRootRotation = dest.getRotation().asMatrix()            
@@ -107,14 +136,22 @@ def transferOneJoint(src,dest):
         
         
         
-        srcHierarcyMatrix = gethierarchyMatrix(src) #This will be done on the first frame. A matrix of the hierarcys TPose will be constructed
-        #hierarchyMatrix is used to isolate the rotation from the source joint
+        srcHierarcyMatrix = src.getRotation().asMatrix() 
+        #This will be done on the first frame. 
+        #A matrix of the hierarcys TPose will be returned
+        #srcHierarchyMatrix is used to isolate the rotation from the source joint
         
         changeofBasisMatrix = getChangeOfBasisMatrix(src) #This creates the matrix that is needed when we change the basis of the orientation
         #it is similar to the hierarchyMatrix, However, it is multiplicated in the reverse order, and it does not include the source joint orientation
         
         
-        destHierarcyMatrix  = gethierarchyMatrix(dest) #This returns the hierarcy matrix of the destination, it is used when we are to apply the rotation to the destination
+        
+        #TO BE REMOVED (if no problem occurs)
+        #destHierarcyMatrix  = gethierarchyMatrix(dest) 
+        #This returns the hierarcy matrix of the destination,
+        #it is used when we are to apply the rotation to the destination
+        
+        
         
         #TEMPORARY
         #current = 185
@@ -187,45 +224,20 @@ def gethierarchyMatrix(node):
     
 def transferAnimation(sourceRoot,destinationRoot):
     
-    print "HEJHEJHEJ"
-    #print test.__len__()
-   
-    print sourceRoot.getAllParents().__len__()
+    #print "HEJHEJHEJ"
+
     
-    for Sc,Dc in zip(sourceRoot.getChildren(),destinationRoot.getChildren()):
-        
-        print Sc
-        firstFrame = pm.findKeyframe(Sc, which ='first')
-        lastFrame = pm.findKeyframe(Sc, which = 'last')
-        current = firstFrame
-        pm.setCurrentTime(current)
-        frames = 0
-        #hierarcyMatrix = 
-        while current <= lastFrame:
-            frames += 1
-            print current
-            
-            
-            current = pm.findKeyframe(Sc , time = current, which='next')
-            pm.setCurrentTime(current)
-            
-            srcRotation = getRotationFromJoint(Sc) 
-            setRotationToJoint(srcRotation,Dc)            
-            Dc.rotate.setKey()
-            if current == lastFrame:
-                break
-        print "NUMBER OF ANIMATIONFRAMES:" + str(frames)
-            #print Sc
-            #print Dc
-            
-        #transferAnimation(Sc, Dc)
-        
-        #srcRotation = getRotationFromJoint(sc)
-        
-        #sourceRot = getRotationFromJoint(Sc)
-        #destinationRot.setRotation(sourceRot)
-        
     
+    for Sc,Dc in zip(sourceRoot,destinationRoot):
+        source = pm.PyNode(Sc)
+        destination = pm.PyNode(Dc)
+        
+        transferOneJoint(source, destination)
+    print "DONE"
+        
+     
+        
+       
 
 
 
