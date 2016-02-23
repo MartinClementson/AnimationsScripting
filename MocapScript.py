@@ -3,8 +3,8 @@ import time
 
 import sys
 
-#sys.path.insert(0,'//storage10.student.bth.se/students/20142/maik14/AnimationsScripting/')
-sys.path.insert(0,'C:/Users/Martin/Desktop/AnimationsScripting/')
+sys.path.insert(0,'//storage10.student.bth.se/students/20142/maik14/AnimationsScripting/')
+#sys.path.insert(0,'C:/Users/Martin/Desktop/AnimationsScripting/')
 
 
 try:
@@ -25,9 +25,9 @@ dest = ['HIKCharacterNode1_Hips', 'HIKCharacterNode1_LeftUpLeg', 'HIKCharacterNo
 #destRoot = pm.PyNode('HIKCharacterNode1_RightUpLeg')
 #destRoot = pm.PyNode('HIKCharacterNode1_RightLeg')
 #destRoot = pm.PyNode('HIKCharacterNode1_RightFoot')
-
+print "MOCAP SCRIPT LOADED!!"
 #hej = tf.printChildren(src, 0)
-tf.transferAnimation(src, dest)
+#tf.transferAnimation(src, dest)
 #print "TOTAL AMOUNT OF Joints : " + str(hej)
 #tf.transferOneJoint(src, destRoot)
 #tf.transferAnimation(root,destRoot)
