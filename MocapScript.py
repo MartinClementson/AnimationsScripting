@@ -3,8 +3,8 @@ import time
 
 import sys
 
-sys.path.insert(0,'//storage10.student.bth.se/students/20142/maik14/AnimationsScripting/')
-#sys.path.insert(0,'C:/Users/Martin/Desktop/AnimationsScripting/')
+#sys.path.insert(0,'//storage10.student.bth.se/students/20142/maik14/AnimationsScripting/')
+sys.path.insert(0,'C:/Users/Martin/Desktop/AnimationsScripting/')
 
 
 try:
