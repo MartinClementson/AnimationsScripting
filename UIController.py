@@ -19,7 +19,7 @@ try:
 
 except Exception, e:
     print e  
-    import MocapScript as transfer   
+    import transferFunctions as transfer   
 
 
 
@@ -169,7 +169,7 @@ class myUIController(QObject):
         self.loadJointsFromString(self.ui.SourceList,stringToLoad)
         self.ui.L_jointAmount.setText(str(self.ui.SourceList.count()))
         self.compareJointCount()
-        self.ui.TargetList.setCurrentRow(0)        
+        self.ui.SourceList.setCurrentRow(0)        
         
     
     def loadTargetJointsFromString(self):
@@ -274,21 +274,19 @@ class myUIController(QObject):
         
         loop = self.ui.SourceList.count()
         
+        source = []
+        dest = []
+        
         for x in range(loop):
-            temp = self.ui.SourceList.item(x)
+            source.append(str(self.ui.SourceList.item(x).text()))
+            dest.append(str(self.ui.TargetList.item(x).text()))
             
-            print str(temp.text())
+            #print str(temp.text())
+        
+        transfer.transferAnimation(source, dest)
 
 
-
-
-
-
-        #curvez.setRotation(joint._getRotation('transform'),'transform')
-        print 'create button is clicked'
-
-    def parentButtonClicked(self):
-        print 'parent button is clicked'
+ 
 
 
     def SourcelistItemChanged(self):
