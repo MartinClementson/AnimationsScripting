@@ -84,6 +84,8 @@ def transferOneJoint(src,dest):
     #get the upper most parent node of the source, If there is none it will return itself
     #This is done because we need the root node to to the change of basis
     srcRootNode = getRootNode(src)
+    
+    destRootNode = getRootNode(dest)
 
 
     
@@ -106,12 +108,15 @@ def transferOneJoint(src,dest):
         pm.setCurrentTime(current) #Set current key frame to the first one
         
         
-        #get the rotation of the root in the first frame (IT's the bind pose)      Needed when changing basis 
-        srcRootRotation = srcRootNode.getRotation().asMatrix()   
+        #get the rotation of the source root in the first frame (IT's the bind pose)      Needed when changing basis 
+        srcRootRotation = srcRootNode.getRotation().asMatrix()  
+        
+        #get the rotation of the destination root joint in the first frame. (Needed when changing basis to destination node)
+        #destRootRotation = destRootNode.getRotation().asMatrix()
     
     
         #Get the bind pose of the destination joint. Needed when applying rotation to destination
-        destRootRotation = dest.getRotation().asMatrix()            
+        destRotation = dest.getRotation().asMatrix()            
 
 
 
@@ -121,10 +126,11 @@ def transferOneJoint(src,dest):
         #A matrix of the hierarcys TPose will be returned
         #srcHierarchyMatrix is used to isolate the rotation from the source joint
         
-        changeofBasisMatrix = getChangeOfBasisMatrix(src)
+        srcChangeofBasisMatrix = getChangeOfBasisMatrix(src)
         #This creates the matrix that is needed when we change the basis of the orientation
         #it is similar to the hierarchyMatrix, However, it is multiplicated in the reverse order, and it does not include the source joint orientation
         
+        destChangeofBasisMatrix = getChangeOfBasisMatrix(dest)
         
     
     
@@ -142,11 +148,16 @@ def transferOneJoint(src,dest):
         
             #Now it needs to be transformed into standard coordinate space.
             #this is achieved by doing a change of basis.     
-            # inv(changeofBasisMatrix) * srcRotation * changeofBasisMatrix
-            srcRotation = changeofBasisMatrix.inverse() * srcRotation * changeofBasisMatrix
+            # inv(srcChangeofBasisMatrix) * srcRotation * srcChangeofBasisMatrix
+            srcRotation = srcChangeofBasisMatrix.inverse() * srcRotation * srcChangeofBasisMatrix
             
             
-            setRotationToJoint(srcRotation,dest,destRootRotation)            
+            #Now we need to transform it from the standard coordinate space to the space of the destination joint
+            # (h * k * h-1 = k2)
+            srcRotation = destChangeofBasisMatrix * srcRotation * destChangeofBasisMatrix.inverse()
+            
+            
+            setRotationToJoint(srcRotation,dest,destRotation)            
     
             dest.rotate.setKey() #Set the keyframe!
             
